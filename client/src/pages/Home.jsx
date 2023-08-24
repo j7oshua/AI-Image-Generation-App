@@ -6,7 +6,7 @@ import { getPosts } from '../api/postApi';
 
 const RenderCards = ({data, title}) => {
     if (data?.length > 0) { 
-        return data.map((post) => <Card key={post._id} {...post}/>)
+        return data?.map((post) => <Card key={post._id} {...post}/>)
     }
 
     return (
@@ -16,10 +16,27 @@ const RenderCards = ({data, title}) => {
 
 const Home = () => {
     const [searchText, setSearchText] = useState('');
+    const [searchedResults, setSearchedResults] = useState(null);
+    const [searchTimeout, setSearchTimeout] = useState(null);
+
     const {isLoading, data} = useQuery({
         queryKey: ['post'],
-        queryFn: () => getPosts()
+        queryFn: () => getPosts(),
     });
+
+    console.log(data?.data.reverse());
+
+    const handleSearchChange = (e) => {
+        clearTimeout(searchTimeout);
+        setSearchText(e.target.value);
+
+        setSearchTimeout(
+            setTimeout(() => {
+              const searchResult = data?.data?.filter((item) => item.name.toLowerCase().includes(searchText.toLowerCase()) || item.prompt.toLowerCase().includes(searchText.toLowerCase()));
+              setSearchedResults(searchResult);
+            }, 500),
+        );
+    }
 
     return (
         <Wrapper>
@@ -30,15 +47,22 @@ const Home = () => {
                 </p>
             </div>
             <div className='form-field'>
-                <FormField />
+                <FormField 
+                    labelName='Search Posts' 
+                    type='text' 
+                    name='text' 
+                    placeholder='Search Posts'
+                    value={searchText}
+                    handleChange={handleSearchChange}
+                />
                 {isLoading ? <Loader center/> : 
                 <>
                     {searchText && <h2>Showing results for <span>{searchText}</span></h2>}
                     <div className='card-main'>
                         {searchText ? (
-                            <RenderCards data={data} title="No search results found"/>
+                            <RenderCards data={searchedResults} title="No search results found"/>
                         ) : (
-                            <RenderCards data={data} title="No posts found"/>
+                            <RenderCards data={data.data} title="No posts found"/>
                         )}
                     </div>
                 </>

@@ -1,5 +1,5 @@
 import { BrowserRouter, Link, Route, Routes } from 'react-router-dom';
-import { logo } from './assets';
+import logo from './assets/logo.svg';
 import { Home, CreatePost } from './pages';
 import { styled } from 'styled-components';
 
@@ -21,6 +21,10 @@ const Header = styled.header`
     padding: .5rem 1rem;
     border-radius: 5px;
   }
+
+  img {
+    height: 2rem;
+  }
 `;
 
 const Main = styled.main`
@@ -38,7 +42,7 @@ function App() {
   return (
     <BrowserRouter>
       <Header>
-        <Link to="/"> 
+        <Link to="/">
           <img src={logo} alt="logo"/>
         </Link>
         <Link to="/create-post" className='header-link-btn'>Create</Link>

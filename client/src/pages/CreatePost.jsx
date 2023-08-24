@@ -4,12 +4,11 @@ import { styled } from 'styled-components';
 import { preview } from '../assets';
 import { getRandomPrompt } from '../utils';
 import { FormField, Loader } from '../components';
-import { useQueryClient, useMutation } from '@tanstack/react-query';
-import { addTodo } from '../api/postApi';
+import { useAddPostData } from '../api/postApi';
 
 const CreatePost = () => {
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
+
   const [form, setForm] = useState({
     name: '',
     prompt: '',
@@ -19,12 +18,7 @@ const CreatePost = () => {
   const [isLoading, setLoading] = useState(false);
   const [generatingImg, setGeneratingImg] = useState(false);
 
-  const addPostMutation = useMutation(addTodo, {
-    onSuccess: () => {
-      // Invalidate the post cache
-      queryClient.invalidateQueries(['post']);
-    }
-  });
+  const {mutate: addPost} = useAddPostData()
 
   const generateImage = async () => {
     if (form.prompt) {
@@ -59,7 +53,7 @@ const CreatePost = () => {
       setLoading(true);
 
       try {
-        addPostMutation.mutate(JSON.stringify(form));
+        addPost(form);
         navigate('/');
       } catch (error) {
         alert(error);
@@ -72,7 +66,7 @@ const CreatePost = () => {
   }
 
   const handleChange = (e) => {
-    setForm({...form, [e.target.name]: [e.target.value]})
+    setForm({...form, [e.target.name]: e.target.value})
   }
 
   const handleSurpriseMe = () => {
